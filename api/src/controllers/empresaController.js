@@ -11,7 +11,10 @@ export async function listarEmpresas(req, res) {
 
     res.json(empresas);
   } catch (erro) {
-    res.status(500).json({ mensagem: 'Erro ao listar empresas.' });
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao listar empresas.',
+    });
   }
 }
 
@@ -52,7 +55,10 @@ export async function cadastrarEmpresa(req, res) {
       mensagem: 'Empresa cadastrada! Aguarde a aprovação do administrador.',
     });
   } catch (erro) {
-    res.status(500).json({ mensagem: 'Erro ao cadastrar empresa.' });
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao cadastrar empresa.',
+    });
   }
 }
 
@@ -64,7 +70,10 @@ export async function listarTodasEmpresas(req, res) {
 
     res.json(empresas);
   } catch (erro) {
-    res.status(500).json({ mensagem: 'Erro ao listar empresas.' });
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao listar empresas.',
+    });
   }
 }
 
@@ -73,14 +82,91 @@ export async function atualizarAprovacao(req, res) {
     const { id } = req.params;
     const { aprovado } = req.body;
 
-    await pool.query(
+    const [resultado] = await pool.query(
       'UPDATE empresas SET aprovado = ? WHERE id = ?',
       [aprovado ? 1 : 0, id]
     );
 
-    res.json({ mensagem: 'Situação da empresa atualizada.' });
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensagem: 'Empresa não encontrada.',
+      });
+    }
+
+    res.json({
+      mensagem: 'Situação da empresa atualizada.',
+    });
   } catch (erro) {
-    res.status(500).json({ mensagem: 'Erro ao atualizar empresa.' });
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao atualizar empresa.',
+    });
+  }
+}
+
+export async function editarEmpresa(req, res) {
+  try {
+    const { id } = req.params;
+
+    const {
+      nome,
+      endereco,
+      bairro,
+      telefone,
+      email,
+      instagram,
+      cnpj,
+    } = req.body;
+
+    if (
+      !nome?.trim() ||
+      !endereco?.trim() ||
+      !bairro?.trim() ||
+      !telefone?.trim() ||
+      !email?.trim() ||
+      !cnpj?.trim()
+    ) {
+      return res.status(400).json({
+        mensagem: 'Preencha todos os campos obrigatórios.',
+      });
+    }
+
+    const [resultado] = await pool.query(
+      `UPDATE empresas
+       SET nome = ?,
+           endereco = ?,
+           bairro = ?,
+           telefone = ?,
+           email = ?,
+           instagram = ?,
+           cnpj = ?
+       WHERE id = ?`,
+      [
+        nome.trim(),
+        endereco.trim(),
+        bairro.trim(),
+        telefone.trim(),
+        email.trim(),
+        instagram?.trim() || null,
+        cnpj.trim(),
+        id,
+      ]
+    );
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensagem: 'Empresa não encontrada.',
+      });
+    }
+
+    res.json({
+      mensagem: 'Informações da empresa atualizadas com sucesso.',
+    });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao editar empresa.',
+    });
   }
 }
 
@@ -88,10 +174,24 @@ export async function excluirEmpresa(req, res) {
   try {
     const { id } = req.params;
 
-    await pool.query('DELETE FROM empresas WHERE id = ?', [id]);
+    const [resultado] = await pool.query(
+      'DELETE FROM empresas WHERE id = ?',
+      [id]
+    );
 
-    res.json({ mensagem: 'Empresa excluída.' });
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensagem: 'Empresa não encontrada.',
+      });
+    }
+
+    res.json({
+      mensagem: 'Empresa excluída.',
+    });
   } catch (erro) {
-    res.status(500).json({ mensagem: 'Erro ao excluir empresa.' });
+    console.error(erro);
+    res.status(500).json({
+      mensagem: 'Erro ao excluir empresa.',
+    });
   }
 }

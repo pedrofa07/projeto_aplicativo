@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+
 import {
   View,
   Text,
@@ -25,10 +25,23 @@ export default function Admin({ navigation }) {
 
   const [carregando, setCarregando] = useState(false);
 
+  // Estados do modal de exclusão
   const [modalExcluir, setModalExcluir] = useState(false);
   const [tipoExcluir, setTipoExcluir] = useState('');
   const [idExcluir, setIdExcluir] = useState(null);
   const [nomeExcluir, setNomeExcluir] = useState('');
+
+  // Estados do modal de edição
+  const [modalEditar, setModalEditar] = useState(false);
+  const [empresaEditando, setEmpresaEditando] = useState(null);
+
+  const [nomeEditado, setNomeEditado] = useState('');
+  const [enderecoEditado, setEnderecoEditado] = useState('');
+  const [bairroEditado, setBairroEditado] = useState('');
+  const [telefoneEditado, setTelefoneEditado] = useState('');
+  const [emailEditado, setEmailEditado] = useState('');
+  const [instagramEditado, setInstagramEditado] = useState('');
+  const [cnpjEditado, setCnpjEditado] = useState('');
 
   async function entrar() {
     if (!email.trim() || !senha) {
@@ -85,7 +98,9 @@ export default function Admin({ navigation }) {
 
   async function alterarAprovacao(id, aprovado) {
     try {
-      await api.put(`/empresas/${id}/aprovacao`, { aprovado });
+      await api.put(`/empresas/${id}/aprovacao`, {
+        aprovado,
+      });
 
       Alert.alert(
         'Sucesso',
@@ -95,6 +110,73 @@ export default function Admin({ navigation }) {
       await carregarDados();
     } catch (erro) {
       Alert.alert('Erro', erro.message);
+    }
+  }
+
+  function abrirEdicao(empresa) {
+    setEmpresaEditando(empresa);
+
+    setNomeEditado(empresa.nome || '');
+    setEnderecoEditado(empresa.endereco || '');
+    setBairroEditado(empresa.bairro || '');
+    setTelefoneEditado(empresa.telefone || '');
+    setEmailEditado(empresa.email || '');
+    setInstagramEditado(empresa.instagram || '');
+    setCnpjEditado(empresa.cnpj || '');
+
+    setModalEditar(true);
+  }
+
+  async function salvarEdicao() {
+    if (!empresaEditando) {
+      Alert.alert('Erro', 'Nenhuma empresa selecionada.');
+      return;
+    }
+
+    if (
+      !nomeEditado.trim() ||
+      !enderecoEditado.trim() ||
+      !bairroEditado.trim() ||
+      !telefoneEditado.trim() ||
+      !emailEditado.trim() ||
+      !cnpjEditado.trim()
+    ) {
+      Alert.alert(
+        'Atenção',
+        'Preencha todos os campos obrigatórios.'
+      );
+      return;
+    }
+
+    try {
+      setCarregando(true);
+
+      await api.put(`/empresas/${empresaEditando.id}`, {
+        nome: nomeEditado.trim(),
+        endereco: enderecoEditado.trim(),
+        bairro: bairroEditado.trim(),
+        telefone: telefoneEditado.trim(),
+        email: emailEditado.trim(),
+        instagram: instagramEditado.trim(),
+        cnpj: cnpjEditado.trim(),
+      });
+
+      setModalEditar(false);
+      setEmpresaEditando(null);
+
+      Alert.alert(
+        'Sucesso',
+        'Informações da empresa atualizadas com sucesso.'
+      );
+
+      await carregarDados();
+    } catch (erro) {
+      Alert.alert(
+        'Erro ao editar',
+        erro.message || 'Não foi possível editar a empresa.'
+      );
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -137,7 +219,10 @@ export default function Admin({ navigation }) {
       setIdExcluir(null);
       setNomeExcluir('');
 
-      Alert.alert('Excluído', 'O registro foi excluído com sucesso.');
+      Alert.alert(
+        'Excluído',
+        'O registro foi excluído com sucesso.'
+      );
     } catch (erro) {
       Alert.alert(
         'Erro ao excluir',
@@ -211,7 +296,9 @@ export default function Admin({ navigation }) {
             onPress={carregarDados}
             disabled={carregando}
           >
-            <Text style={styles.botaoTexto}>Atualizar dados</Text>
+            <Text style={styles.botaoTexto}>
+              Atualizar dados
+            </Text>
           </TouchableOpacity>
 
           {carregando && (
@@ -222,14 +309,20 @@ export default function Admin({ navigation }) {
             />
           )}
 
-          <Text style={styles.secao}>Empresas cadastradas</Text>
+          <Text style={styles.secao}>
+            Empresas cadastradas
+          </Text>
 
           {empresas.length === 0 ? (
-            <Text style={styles.vazio}>Nenhuma empresa cadastrada.</Text>
+            <Text style={styles.vazio}>
+              Nenhuma empresa cadastrada.
+            </Text>
           ) : (
             empresas.map((empresa) => (
               <View key={empresa.id} style={styles.card}>
-                <Text style={styles.nome}>{empresa.nome}</Text>
+                <Text style={styles.nome}>
+                  {empresa.nome}
+                </Text>
 
                 <Text style={styles.texto}>
                   Endereço: {empresa.endereco}
@@ -247,16 +340,35 @@ export default function Admin({ navigation }) {
                   E-mail: {empresa.email}
                 </Text>
 
+                <Text style={styles.texto}>
+                  Instagram: {empresa.instagram || 'Não informado'}
+                </Text>
+
+                <Text style={styles.texto}>
+                  CNPJ: {empresa.cnpj || 'Não informado'}
+                </Text>
+
                 <Text style={styles.status}>
                   Situação: {empresa.aprovado ? 'Aprovada' : 'Pendente'}
                 </Text>
+
+                <TouchableOpacity
+                  style={styles.botaoEditar}
+                  onPress={() => abrirEdicao(empresa)}
+                >
+                  <Text style={styles.botaoTexto}>
+                    Editar empresa
+                  </Text>
+                </TouchableOpacity>
 
                 {!empresa.aprovado && (
                   <TouchableOpacity
                     style={styles.botao}
                     onPress={() => alterarAprovacao(empresa.id, true)}
                   >
-                    <Text style={styles.botaoTexto}>Aprovar</Text>
+                    <Text style={styles.botaoTexto}>
+                      Aprovar
+                    </Text>
                   </TouchableOpacity>
                 )}
 
@@ -289,14 +401,20 @@ export default function Admin({ navigation }) {
             ))
           )}
 
-          <Text style={styles.secao}>Mensagens recebidas</Text>
+          <Text style={styles.secao}>
+            Mensagens recebidas
+          </Text>
 
           {mensagens.length === 0 ? (
-            <Text style={styles.vazio}>Nenhuma mensagem recebida.</Text>
+            <Text style={styles.vazio}>
+              Nenhuma mensagem recebida.
+            </Text>
           ) : (
             mensagens.map((mensagem) => (
               <View key={mensagem.id} style={styles.card}>
-                <Text style={styles.nome}>{mensagem.assunto}</Text>
+                <Text style={styles.nome}>
+                  {mensagem.assunto}
+                </Text>
 
                 <Text style={styles.texto}>
                   Nome: {mensagem.nome}
@@ -332,11 +450,111 @@ export default function Admin({ navigation }) {
             style={styles.botaoSecundario}
             onPress={sair}
           >
-            <Text style={styles.botaoTexto}>Sair do painel</Text>
+            <Text style={styles.botaoTexto}>
+              Sair do painel
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       )}
 
+      {/* Modal para editar empresa */}
+      <Modal
+        visible={modalEditar}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalEditar(false)}
+      >
+        <View style={styles.modalFundo}>
+          <View style={styles.modalCaixa}>
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.modalTitulo}>
+                Editar empresa
+              </Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Nome da empresa"
+                value={nomeEditado}
+                onChangeText={setNomeEditado}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Endereço"
+                value={enderecoEditado}
+                onChangeText={setEnderecoEditado}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Bairro"
+                value={bairroEditado}
+                onChangeText={setBairroEditado}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Telefone"
+                value={telefoneEditado}
+                onChangeText={setTelefoneEditado}
+                keyboardType="phone-pad"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="E-mail"
+                value={emailEditado}
+                onChangeText={setEmailEditado}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Instagram"
+                value={instagramEditado}
+                onChangeText={setInstagramEditado}
+                autoCapitalize="none"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="CNPJ"
+                value={cnpjEditado}
+                onChangeText={setCnpjEditado}
+                keyboardType="numeric"
+              />
+
+              <TouchableOpacity
+                style={styles.botao}
+                onPress={salvarEdicao}
+                disabled={carregando}
+              >
+                <Text style={styles.botaoTexto}>
+                  {carregando
+                    ? 'Salvando...'
+                    : 'Salvar alterações'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.botaoSecundario}
+                onPress={() => setModalEditar(false)}
+                disabled={carregando}
+              >
+                <Text style={styles.botaoTexto}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal para confirmar exclusão */}
       <Modal
         visible={modalExcluir}
         transparent
@@ -390,19 +608,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F8F6',
   },
+
   conteudo: {
     padding: 20,
   },
+
   titulo: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#087A46',
     marginBottom: 10,
   },
+
   subtitulo: {
     color: '#444',
     marginBottom: 20,
   },
+
   secao: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -410,6 +632,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 12,
   },
+
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -418,6 +641,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
+
   card: {
     backgroundColor: '#FFFFFF',
     padding: 16,
@@ -426,51 +650,68 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E8E2',
   },
+
   nome: {
     fontSize: 19,
     fontWeight: 'bold',
     color: '#087A46',
     marginBottom: 8,
   },
+
   texto: {
     fontSize: 15,
     color: '#333',
     marginBottom: 6,
   },
+
   status: {
     fontWeight: 'bold',
     marginVertical: 8,
   },
+
   vazio: {
     color: '#666',
     marginBottom: 12,
   },
+
   carregando: {
     marginVertical: 12,
   },
+
   botao: {
     backgroundColor: '#087A46',
     padding: 13,
     borderRadius: 8,
     marginVertical: 8,
   },
+
+  botaoEditar: {
+    backgroundColor: '#1565C0',
+    padding: 13,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+
   botaoSecundario: {
     backgroundColor: '#555',
     padding: 13,
     borderRadius: 8,
     marginVertical: 8,
   },
+
   botaoExcluir: {
     backgroundColor: '#B3261E',
     padding: 13,
     borderRadius: 8,
     marginVertical: 8,
   },
+
   botaoTexto: {
     color: '#FFFFFF',
     textAlign: 'center',
     fontWeight: 'bold',
   },
+
   modalFundo: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -478,43 +719,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+
   modalCaixa: {
     width: '100%',
     maxWidth: 400,
+    maxHeight: '90%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
   },
+
   modalTitulo: {
     fontSize: 21,
     fontWeight: 'bold',
     color: '#087A46',
     marginBottom: 12,
   },
+
   modalTexto: {
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
   },
+
   modalAviso: {
     fontSize: 14,
     color: '#777',
     marginBottom: 20,
   },
+
   modalBotoes: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 10,
   },
+
   modalCancelar: {
     padding: 12,
     borderRadius: 8,
     backgroundColor: '#EEEEEE',
   },
+
   modalCancelarTexto: {
     color: '#333',
     fontWeight: 'bold',
   },
+
   modalExcluir: {
     padding: 12,
     borderRadius: 8,
