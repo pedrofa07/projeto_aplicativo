@@ -1,0 +1,36 @@
+CREATE DATABASE IF NOT EXISTS brightenergy
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE brightenergy;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    nivel ENUM('usuario', 'admin') DEFAULT 'usuario',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS empresas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    endereco VARCHAR(255) NOT NULL,
+    bairro VARCHAR(100) NOT NULL,
+    telefone VARCHAR(30) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    instagram VARCHAR(150),
+    cnpj VARCHAR(30) NOT NULL,
+    aprovado BOOLEAN DEFAULT FALSE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mensagens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    assunto VARCHAR(100) NOT NULL,
+    mensagem TEXT NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
