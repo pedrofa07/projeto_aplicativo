@@ -1,11 +1,11 @@
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Android Emulator:
-const API_URL =
-  Platform.OS === 'android'
+const API_URL = process.env.EXPO_PUBLIC_API_URL ||
+  (Platform.OS === 'android'
     ? 'http://10.0.2.2:3000/api'
-    : 'http://localhost:3000/api';
+    : 'http://localhost:3000/api');
 
 async function requisicao(endpoint, metodo = 'GET', dados = null) {
   const token = await AsyncStorage.getItem('token');
@@ -14,25 +14,15 @@ async function requisicao(endpoint, metodo = 'GET', dados = null) {
     method: metodo,
     headers: {
       'Content-Type': 'application/json',
-      ...(token
-        ? {
-            Authorization: `Bearer ${token}`,
-          }
-        : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    ...(dados
-      ? {
-          body: JSON.stringify(dados),
-        }
-      : {}),
+    ...(dados ? { body: JSON.stringify(dados) } : {}),
   });
 
   const resultado = await resposta.json().catch(() => ({}));
 
   if (!resposta.ok) {
-    throw new Error(
-      resultado.mensagem || 'Erro ao realizar requisição.'
-    );
+    throw new Error(resultado.mensagem || 'Erro ao realizar requisição.');
   }
 
   return resultado;
@@ -40,15 +30,9 @@ async function requisicao(endpoint, metodo = 'GET', dados = null) {
 
 export const api = {
   get: (endpoint) => requisicao(endpoint),
-
-  post: (endpoint, dados) =>
-    requisicao(endpoint, 'POST', dados),
-
-  put: (endpoint, dados) =>
-    requisicao(endpoint, 'PUT', dados),
-
-  delete: (endpoint) =>
-    requisicao(endpoint, 'DELETE'),
+  post: (endpoint, dados) => requisicao(endpoint, 'POST', dados),
+  put: (endpoint, dados) => requisicao(endpoint, 'PUT', dados),
+  delete: (endpoint) => requisicao(endpoint, 'DELETE'),
 };
 
 export async function salvarToken(token) {

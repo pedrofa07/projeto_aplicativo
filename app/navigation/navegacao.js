@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -21,45 +22,14 @@ export default function Navegacao() {
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen
-        name="Inicio"
-        component={Inicio}
-      />
-
-      <Stack.Screen
-        name="Calculadora"
-        component={Calculadora}
-      />
-
-      <Stack.Screen
-        name="Empresas"
-        component={Empresas}
-      />
-
-      <Stack.Screen
-        name="Contato"
-        component={Contato}
-      />
-
-      <Stack.Screen
-        name="Login"
-        component={Login}
-      />
-
-      <Stack.Screen
-        name="Cadastro"
-        component={Cadastro}
-      />
-
-      <Stack.Screen
-        name="Admin"
-        component={Admin}
-      />
-
-      <Stack.Screen
-        name="CadastroEmpresa"
-        component={CadastroEmpresa}
-      />
+      <Stack.Screen name="Inicio" component={Inicio} />
+      <Stack.Screen name="Calculadora" component={Calculadora} />
+      <Stack.Screen name="Empresas" component={Empresas} />
+      <Stack.Screen name="Contato" component={Contato} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Cadastro" component={Cadastro} />
+      <Stack.Screen name="Admin" component={Admin} />
+      <Stack.Screen name="CadastroEmpresa" component={CadastroEmpresa} />
     </Stack.Navigator>
   );
 }

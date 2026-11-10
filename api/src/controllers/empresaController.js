@@ -1,3 +1,4 @@
+
 import { pool } from '../config/database.js';
 
 export async function listarEmpresas(req, res) {
@@ -9,10 +10,10 @@ export async function listarEmpresas(req, res) {
        ORDER BY nome`
     );
 
-    res.json(empresas);
+    return res.json(empresas);
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+    return res.status(500).json({
       mensagem: 'Erro ao listar empresas.',
     });
   }
@@ -30,9 +31,32 @@ export async function cadastrarEmpresa(req, res) {
       cnpj,
     } = req.body;
 
-    if (!nome || !endereco || !bairro || !telefone || !email) {
+    const cnpjNumeros = String(cnpj || '').replace(/\D/g, '');
+
+    if (
+      !nome?.trim() ||
+      !endereco?.trim() ||
+      !bairro?.trim() ||
+      !telefone?.trim() ||
+      !email?.trim() ||
+      !cnpjNumeros
+    ) {
       return res.status(400).json({
-        mensagem: 'Preencha os campos obrigatórios.',
+        mensagem: 'Preencha todos os campos obrigatórios, incluindo o CNPJ.',
+      });
+    }
+
+    if (cnpjNumeros.length !== 14) {
+      return res.status(400).json({
+        mensagem: 'O CNPJ deve possuir 14 números.',
+      });
+    }
+
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+    if (!emailValido) {
+      return res.status(400).json({
+        mensagem: 'Informe um e-mail válido.',
       });
     }
 
@@ -41,22 +65,23 @@ export async function cadastrarEmpresa(req, res) {
        (nome, endereco, bairro, telefone, email, instagram, cnpj, aprovado)
        VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
       [
-        nome,
-        endereco,
-        bairro,
-        telefone,
-        email,
-        instagram || null,
-        cnpj || null,
+        nome.trim(),
+        endereco.trim(),
+        bairro.trim(),
+        telefone.trim(),
+        email.trim(),
+        instagram?.trim() || null,
+        cnpjNumeros,
       ]
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       mensagem: 'Empresa cadastrada! Aguarde a aprovação do administrador.',
     });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+
+    return res.status(500).json({
       mensagem: 'Erro ao cadastrar empresa.',
     });
   }
@@ -65,13 +90,14 @@ export async function cadastrarEmpresa(req, res) {
 export async function listarTodasEmpresas(req, res) {
   try {
     const [empresas] = await pool.query(
-      `SELECT * FROM empresas ORDER BY id DESC`
+      'SELECT * FROM empresas ORDER BY id DESC'
     );
 
-    res.json(empresas);
+    return res.json(empresas);
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+
+    return res.status(500).json({
       mensagem: 'Erro ao listar empresas.',
     });
   }
@@ -81,6 +107,12 @@ export async function atualizarAprovacao(req, res) {
   try {
     const { id } = req.params;
     const { aprovado } = req.body;
+
+    if (typeof aprovado !== 'boolean') {
+      return res.status(400).json({
+        mensagem: 'Informe uma situação de aprovação válida.',
+      });
+    }
 
     const [resultado] = await pool.query(
       'UPDATE empresas SET aprovado = ? WHERE id = ?',
@@ -93,12 +125,13 @@ export async function atualizarAprovacao(req, res) {
       });
     }
 
-    res.json({
+    return res.json({
       mensagem: 'Situação da empresa atualizada.',
     });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+
+    return res.status(500).json({
       mensagem: 'Erro ao atualizar empresa.',
     });
   }
@@ -118,16 +151,26 @@ export async function editarEmpresa(req, res) {
       cnpj,
     } = req.body;
 
+    const cnpjNumeros = String(cnpj || '').replace(/\D/g, '');
+
     if (
       !nome?.trim() ||
       !endereco?.trim() ||
       !bairro?.trim() ||
       !telefone?.trim() ||
       !email?.trim() ||
-      !cnpj?.trim()
+      cnpjNumeros.length !== 14
     ) {
       return res.status(400).json({
-        mensagem: 'Preencha todos os campos obrigatórios.',
+        mensagem: 'Preencha os campos obrigatórios e informe um CNPJ com 14 números.',
+      });
+    }
+
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+    if (!emailValido) {
+      return res.status(400).json({
+        mensagem: 'Informe um e-mail válido.',
       });
     }
 
@@ -148,7 +191,7 @@ export async function editarEmpresa(req, res) {
         telefone.trim(),
         email.trim(),
         instagram?.trim() || null,
-        cnpj.trim(),
+        cnpjNumeros,
         id,
       ]
     );
@@ -159,12 +202,13 @@ export async function editarEmpresa(req, res) {
       });
     }
 
-    res.json({
+    return res.json({
       mensagem: 'Informações da empresa atualizadas com sucesso.',
     });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+
+    return res.status(500).json({
       mensagem: 'Erro ao editar empresa.',
     });
   }
@@ -185,12 +229,13 @@ export async function excluirEmpresa(req, res) {
       });
     }
 
-    res.json({
+    return res.json({
       mensagem: 'Empresa excluída.',
     });
   } catch (erro) {
     console.error(erro);
-    res.status(500).json({
+
+    return res.status(500).json({
       mensagem: 'Erro ao excluir empresa.',
     });
   }

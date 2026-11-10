@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
@@ -21,9 +22,16 @@ export default function Contato({ navigation }) {
   const [enviando, setEnviando] = useState(false);
 
   async function enviarMensagem() {
-    if (!nome.trim() || !email.trim() || !assunto.trim() ||
-        !mensagem.trim()) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
+    if (
+      !nome.trim() ||
+      !email.trim() ||
+      !assunto.trim() ||
+      !mensagem.trim()
+    ) {
+      Alert.alert(
+        'Atenção',
+        'Preencha todos os campos antes de enviar.'
+      );
       return;
     }
 
@@ -37,17 +45,21 @@ export default function Contato({ navigation }) {
         mensagem: mensagem.trim(),
       });
 
-      Alert.alert(
-        'Mensagem enviada!',
-        'Sua mensagem foi enviada com sucesso. Obrigado por entrar em contato!'
-      );
-
       setNome('');
       setEmail('');
       setAssunto('');
       setMensagem('');
+
+      Alert.alert(
+        'Mensagem enviada!',
+        'Sua mensagem foi enviada com sucesso. Obrigado por entrar em contato!'
+      );
     } catch (erro) {
-      Alert.alert('Erro', erro.message);
+      Alert.alert(
+        'Erro ao enviar',
+        erro.message ||
+          'Não foi possível enviar sua mensagem. Tente novamente.'
+      );
     } finally {
       setEnviando(false);
     }
@@ -57,8 +69,14 @@ export default function Contato({ navigation }) {
     <View style={styles.container}>
       <Cabecalho navigation={navigation} />
 
-      <ScrollView contentContainerStyle={styles.conteudo}>
-        <Text style={styles.titulo}>Entre em contato</Text>
+      <ScrollView
+        contentContainerStyle={styles.conteudo}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.titulo}>
+          Entre em contato
+        </Text>
 
         <Text style={styles.subtitulo}>
           Envie sua dúvida ou mensagem para a equipe BrightEnergy.
@@ -69,6 +87,7 @@ export default function Contato({ navigation }) {
           placeholder="Nome"
           value={nome}
           onChangeText={setNome}
+          editable={!enviando}
         />
 
         <TextInput
@@ -78,6 +97,7 @@ export default function Contato({ navigation }) {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          editable={!enviando}
         />
 
         <TextInput
@@ -85,6 +105,7 @@ export default function Contato({ navigation }) {
           placeholder="Assunto"
           value={assunto}
           onChangeText={setAssunto}
+          editable={!enviando}
         />
 
         <TextInput
@@ -94,10 +115,14 @@ export default function Contato({ navigation }) {
           onChangeText={setMensagem}
           multiline
           textAlignVertical="top"
+          editable={!enviando}
         />
 
         <TouchableOpacity
-          style={[styles.botao, enviando && styles.botaoDesativado]}
+          style={[
+            styles.botao,
+            enviando && styles.botaoDesativado,
+          ]}
           onPress={enviarMensagem}
           disabled={enviando}
         >
@@ -115,20 +140,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F8F6',
   },
+
   conteudo: {
     padding: 20,
   },
+
   titulo: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#087A46',
     marginBottom: 8,
   },
+
   subtitulo: {
     fontSize: 15,
     color: '#444',
     marginBottom: 20,
   },
+
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -137,18 +166,22 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
+
   mensagem: {
     minHeight: 140,
   },
+
   botao: {
     backgroundColor: '#087A46',
     padding: 15,
     borderRadius: 8,
     marginTop: 10,
   },
+
   botaoDesativado: {
     opacity: 0.6,
   },
+
   botaoTexto: {
     color: '#FFFFFF',
     textAlign: 'center',

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -25,13 +26,11 @@ export default function Admin({ navigation }) {
 
   const [carregando, setCarregando] = useState(false);
 
-  // Estados do modal de exclusão
   const [modalExcluir, setModalExcluir] = useState(false);
   const [tipoExcluir, setTipoExcluir] = useState('');
   const [idExcluir, setIdExcluir] = useState(null);
   const [nomeExcluir, setNomeExcluir] = useState('');
 
-  // Estados do modal de edição
   const [modalEditar, setModalEditar] = useState(false);
   const [empresaEditando, setEmpresaEditando] = useState(null);
 
@@ -74,7 +73,10 @@ export default function Admin({ navigation }) {
 
       await carregarDados();
     } catch (erro) {
-      Alert.alert('Erro ao entrar', erro.message);
+      Alert.alert(
+        'Erro ao entrar',
+        erro.message || 'Não foi possível realizar o login.'
+      );
     } finally {
       setCarregando(false);
     }
@@ -90,7 +92,10 @@ export default function Admin({ navigation }) {
       setEmpresas(Array.isArray(listaEmpresas) ? listaEmpresas : []);
       setMensagens(Array.isArray(listaMensagens) ? listaMensagens : []);
     } catch (erro) {
-      Alert.alert('Erro ao carregar dados', erro.message);
+      Alert.alert(
+        'Erro ao carregar dados',
+        erro.message || 'Não foi possível carregar as informações.'
+      );
     } finally {
       setCarregando(false);
     }
@@ -98,18 +103,27 @@ export default function Admin({ navigation }) {
 
   async function alterarAprovacao(id, aprovado) {
     try {
+      setCarregando(true);
+
       await api.put(`/empresas/${id}/aprovacao`, {
         aprovado,
       });
 
-      Alert.alert(
-        'Sucesso',
-        aprovado ? 'Empresa aprovada!' : 'Aprovação retirada.'
-      );
-
       await carregarDados();
+
+      Alert.alert(
+        'Operação realizada!',
+        aprovado
+          ? 'Empresa aprovada com sucesso!'
+          : 'Aprovação da empresa retirada com sucesso!'
+      );
     } catch (erro) {
-      Alert.alert('Erro', erro.message);
+      Alert.alert(
+        'Erro',
+        erro.message || 'Não foi possível alterar a aprovação.'
+      );
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -164,12 +178,12 @@ export default function Admin({ navigation }) {
       setModalEditar(false);
       setEmpresaEditando(null);
 
-      Alert.alert(
-        'Sucesso',
-        'Informações da empresa atualizadas com sucesso.'
-      );
-
       await carregarDados();
+
+      Alert.alert(
+        'Alteração realizada!',
+        'Empresa atualizada com sucesso!'
+      );
     } catch (erro) {
       Alert.alert(
         'Erro ao editar',
@@ -189,12 +203,17 @@ export default function Admin({ navigation }) {
 
   async function confirmarExclusao() {
     if (!idExcluir || !tipoExcluir) {
-      Alert.alert('Erro', 'Não foi possível identificar o registro.');
+      Alert.alert(
+        'Erro',
+        'Não foi possível identificar o registro.'
+      );
       return;
     }
 
     try {
       setCarregando(true);
+
+      let mensagemSucesso = '';
 
       if (tipoExcluir === 'empresa') {
         await api.delete(`/empresas/${idExcluir}`);
@@ -204,6 +223,8 @@ export default function Admin({ navigation }) {
             (empresa) => String(empresa.id) !== String(idExcluir)
           )
         );
+
+        mensagemSucesso = 'Empresa excluída com sucesso!';
       } else if (tipoExcluir === 'mensagem') {
         await api.delete(`/contato/${idExcluir}`);
 
@@ -212,6 +233,11 @@ export default function Admin({ navigation }) {
             (mensagem) => String(mensagem.id) !== String(idExcluir)
           )
         );
+
+        mensagemSucesso = 'Mensagem excluída com sucesso!';
+      } else {
+        Alert.alert('Erro', 'Tipo de registro inválido.');
+        return;
       }
 
       setModalExcluir(false);
@@ -220,8 +246,8 @@ export default function Admin({ navigation }) {
       setNomeExcluir('');
 
       Alert.alert(
-        'Excluído',
-        'O registro foi excluído com sucesso.'
+        'Operação realizada!',
+        mensagemSucesso
       );
     } catch (erro) {
       Alert.alert(
@@ -365,6 +391,7 @@ export default function Admin({ navigation }) {
                   <TouchableOpacity
                     style={styles.botao}
                     onPress={() => alterarAprovacao(empresa.id, true)}
+                    disabled={carregando}
                   >
                     <Text style={styles.botaoTexto}>
                       Aprovar
@@ -376,6 +403,7 @@ export default function Admin({ navigation }) {
                   <TouchableOpacity
                     style={styles.botaoSecundario}
                     onPress={() => alterarAprovacao(empresa.id, false)}
+                    disabled={carregando}
                   >
                     <Text style={styles.botaoTexto}>
                       Retirar aprovação
@@ -392,6 +420,7 @@ export default function Admin({ navigation }) {
                       empresa.nome
                     )
                   }
+                  disabled={carregando}
                 >
                   <Text style={styles.botaoTexto}>
                     Excluir empresa
@@ -437,6 +466,7 @@ export default function Admin({ navigation }) {
                       mensagem.assunto
                     )
                   }
+                  disabled={carregando}
                 >
                   <Text style={styles.botaoTexto}>
                     Excluir mensagem
@@ -449,6 +479,7 @@ export default function Admin({ navigation }) {
           <TouchableOpacity
             style={styles.botaoSecundario}
             onPress={sair}
+            disabled={carregando}
           >
             <Text style={styles.botaoTexto}>
               Sair do painel
@@ -457,7 +488,6 @@ export default function Admin({ navigation }) {
         </ScrollView>
       )}
 
-      {/* Modal para editar empresa */}
       <Modal
         visible={modalEditar}
         transparent
@@ -554,7 +584,6 @@ export default function Admin({ navigation }) {
         </View>
       </Modal>
 
-      {/* Modal para confirmar exclusão */}
       <Modal
         visible={modalExcluir}
         transparent
@@ -568,7 +597,7 @@ export default function Admin({ navigation }) {
             </Text>
 
             <Text style={styles.modalTexto}>
-              Deseja realmente excluir "{nomeExcluir}'?
+              {`Deseja realmente excluir "${nomeExcluir}"?`}
             </Text>
 
             <Text style={styles.modalAviso}>

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
@@ -24,9 +25,18 @@ export default function CadastroEmpresa({ navigation }) {
   const [enviando, setEnviando] = useState(false);
 
   async function cadastrar() {
-    if (!nome.trim() || !endereco.trim() || !bairro.trim() ||
-        !telefone.trim() || !email.trim()) {
-      Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
+    if (
+      !nome.trim() ||
+      !endereco.trim() ||
+      !bairro.trim() ||
+      !telefone.trim() ||
+      !email.trim() ||
+      !cnpj.trim()
+    ) {
+      Alert.alert(
+        'Atenção',
+        'Preencha todos os campos obrigatórios, incluindo o CNPJ.'
+      );
       return;
     }
 
@@ -43,17 +53,6 @@ export default function CadastroEmpresa({ navigation }) {
         cnpj: cnpj.trim(),
       });
 
-      Alert.alert(
-        'Solicitação enviada!',
-        'Sua empresa foi cadastrada e está aguardando aprovação.',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Empresas'),
-          },
-        ]
-      );
-
       setNome('');
       setEndereco('');
       setBairro('');
@@ -61,8 +60,22 @@ export default function CadastroEmpresa({ navigation }) {
       setEmail('');
       setInstagram('');
       setCnpj('');
+
+      Alert.alert(
+        'Solicitação enviada!',
+        'Sua empresa foi cadastrada e está aguardando aprovação do administrador.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Empresas'),
+          },
+        ]
+      );
     } catch (erro) {
-      Alert.alert('Erro', erro.message);
+      Alert.alert(
+        'Erro ao cadastrar',
+        erro.message || 'Não foi possível enviar a solicitação. Tente novamente.'
+      );
     } finally {
       setEnviando(false);
     }
@@ -72,8 +85,14 @@ export default function CadastroEmpresa({ navigation }) {
     <View style={styles.container}>
       <Cabecalho navigation={navigation} />
 
-      <ScrollView contentContainerStyle={styles.conteudo}>
-        <Text style={styles.titulo}>Cadastre sua empresa</Text>
+      <ScrollView
+        contentContainerStyle={styles.conteudo}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.titulo}>
+          Cadastre sua empresa
+        </Text>
 
         <Text style={styles.subtitulo}>
           Preencha os dados para solicitar a inclusão no catálogo.
@@ -84,6 +103,7 @@ export default function CadastroEmpresa({ navigation }) {
           placeholder="Nome da empresa *"
           value={nome}
           onChangeText={setNome}
+          editable={!enviando}
         />
 
         <TextInput
@@ -91,6 +111,7 @@ export default function CadastroEmpresa({ navigation }) {
           placeholder="Endereço *"
           value={endereco}
           onChangeText={setEndereco}
+          editable={!enviando}
         />
 
         <TextInput
@@ -98,6 +119,7 @@ export default function CadastroEmpresa({ navigation }) {
           placeholder="Bairro *"
           value={bairro}
           onChangeText={setBairro}
+          editable={!enviando}
         />
 
         <TextInput
@@ -106,6 +128,7 @@ export default function CadastroEmpresa({ navigation }) {
           value={telefone}
           onChangeText={setTelefone}
           keyboardType="phone-pad"
+          editable={!enviando}
         />
 
         <TextInput
@@ -115,6 +138,7 @@ export default function CadastroEmpresa({ navigation }) {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          editable={!enviando}
         />
 
         <TextInput
@@ -123,18 +147,27 @@ export default function CadastroEmpresa({ navigation }) {
           value={instagram}
           onChangeText={setInstagram}
           autoCapitalize="none"
+          editable={!enviando}
         />
 
         <TextInput
           style={styles.input}
-          placeholder="CNPJ"
+          placeholder="CNPJ *"
           value={cnpj}
           onChangeText={setCnpj}
           keyboardType="numeric"
+          editable={!enviando}
         />
 
+        <Text style={styles.observacao}>
+          * Campos obrigatórios.
+        </Text>
+
         <TouchableOpacity
-          style={[styles.botao, enviando && styles.botaoDesativado]}
+          style={[
+            styles.botao,
+            enviando && styles.botaoDesativado,
+          ]}
           onPress={cadastrar}
           disabled={enviando}
         >
@@ -152,20 +185,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F8F6',
   },
+
   conteudo: {
     padding: 20,
   },
+
   titulo: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#087A46',
     marginBottom: 8,
   },
+
   subtitulo: {
     fontSize: 15,
     color: '#444',
     marginBottom: 20,
   },
+
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -174,6 +211,13 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
+
+  observacao: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 8,
+  },
+
   botao: {
     backgroundColor: '#087A46',
     padding: 15,
@@ -181,9 +225,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 25,
   },
+
   botaoDesativado: {
     opacity: 0.6,
   },
+
   botaoTexto: {
     color: '#FFFFFF',
     textAlign: 'center',
