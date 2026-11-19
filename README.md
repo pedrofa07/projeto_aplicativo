@@ -1,13 +1,13 @@
 
 # BrightEnergy ☀️
 
-Aplicativo mobile desenvolvido para facilitar o acesso a informações sobre energia solar, simular possíveis economias na conta de luz e conectar pessoas a empresas de energia solar de Santa Cruz do Sul - RS.
+Aplicativo mobile desenvolvido para facilitar o acesso a informações sobre energia solar, simular possíveis economias na conta de luz e conectar consumidores a empresas de energia solar de Santa Cruz do Sul e região.
 
 ## 1. Problema identificado
 
-Pessoas interessadas em instalar sistemas de energia solar podem encontrar dificuldades para compreender os benefícios dessa tecnologia, estimar a economia possível e localizar empresas especializadas.
+Pessoas interessadas em instalar sistemas de energia solar podem ter dificuldades para compreender os benefícios dessa tecnologia, estimar a economia possível e encontrar empresas especializadas.
 
-O BrightEnergy busca reunir essas informações em um único aplicativo, facilitando o acesso à informação e o contato entre consumidores e empresas.
+O BrightEnergy reúne informações, uma calculadora de estimativas e um catálogo de empresas em um único aplicativo.
 
 ## 2. Objetivo
 
@@ -17,70 +17,25 @@ Desenvolver uma aplicação mobile que permita consultar informações sobre ene
 
 - Pessoas interessadas em energia solar.
 - Proprietários de residências e estabelecimentos comerciais.
-- Consumidores que desejam conhecer alternativas para reduzir os gastos com energia elétrica.
-- Pessoas que procuram empresas de instalação de sistemas fotovoltaicos em Santa Cruz do Sul e região.
+- Consumidores que desejam conhecer alternativas para reduzir gastos com energia elétrica.
 - Empresas que desejam divulgar seus serviços.
 
-## 4. Justificativa
+## 4. Funcionalidades
 
-A energia solar representa uma alternativa de geração de eletricidade a partir de uma fonte renovável.
+- Apresentação de informações sobre energia solar.
+- Calculadora de estimativa de economia.
+- Listagem de empresas aprovadas.
+- Solicitação de cadastro de empresas.
+- Cadastro e login de usuários.
+- Formulário de contato.
+- Painel administrativo.
+- Aprovação, edição e exclusão de empresas.
+- Visualização e exclusão de mensagens.
+- Controle de acesso por nível de usuário.
 
-Entretanto, muitas pessoas ainda possuem dúvidas sobre os custos, a economia possível e a contratação de empresas especializadas.
+## 5. Tecnologias utilizadas
 
-O BrightEnergy foi desenvolvido para facilitar o acesso a essas informações, oferecendo uma calculadora de estimativas, um catálogo de empresas e canais de contato.
-
-## 5. Requisitos funcionais
-
-- RF01: O aplicativo deve apresentar informações sobre energia solar.
-- RF02: O aplicativo deve permitir simulações de economia.
-- RF03: O aplicativo deve apresentar empresas aprovadas.
-- RF04: O usuário deve poder solicitar o cadastro de uma empresa.
-- RF05: O usuário deve poder realizar cadastro e login.
-- RF06: O usuário deve poder enviar mensagens pelo formulário de contato.
-- RF07: O administrador deve poder visualizar solicitações de empresas.
-- RF08: O administrador deve poder aprovar ou rejeitar solicitações.
-- RF09: O administrador deve poder editar e excluir empresas.
-- RF10: O administrador deve poder visualizar e excluir mensagens.
-
-## 6. Requisitos não funcionais
-
-- RNF01: A aplicação mobile deve utilizar React Native com Expo.
-- RNF02: O servidor deve utilizar Node.js e Express.
-- RNF03: Os dados devem ser armazenados em banco de dados MySQL.
-- RNF04: A autenticação deve utilizar JWT.
-- RNF05: As senhas devem ser armazenadas utilizando hash com bcryptjs.
-- RNF06: As rotas administrativas devem exigir autenticação e autorização.
-- RNF07: A comunicação entre aplicativo e API deve utilizar requisições HTTP.
-
-## 7. Funcionalidades e telas
-
-### Início
-Apresenta o projeto e informações sobre energia solar.
-
-### Calculadora
-Permite informar o valor da conta de luz, o custo estimado do sistema e o percentual de economia desejado.
-
-### Empresas
-Apresenta as empresas que foram aprovadas pelo administrador.
-
-### Contato
-Permite enviar mensagens à equipe responsável pelo projeto.
-
-### Cadastro
-Permite criar uma conta de usuário.
-
-### Login
-Permite autenticar usuários e administradores.
-
-### Cadastro de empresa
-Permite solicitar a inclusão de uma empresa no catálogo.
-
-### Administração
-Permite gerenciar empresas, solicitações e mensagens.
-
-## 8. Tecnologias utilizadas
-
-### Aplicativo
+### Aplicativo mobile
 - React Native
 - Expo
 - JavaScript
@@ -98,7 +53,7 @@ Permite gerenciar empresas, solicitações e mensagens.
 - MySQL
 - mysql2
 
-## 9. Estrutura do projeto
+## 6. Estrutura do projeto
 
 ```text
 projeto_pi/
@@ -109,7 +64,8 @@ projeto_pi/
 │   │   ├── middlewares/
 │   │   └── routes/
 │   ├── server.js
-│   └── package.json
+│   ├── package.json
+│   └── .env.example
 ├── app/
 │   ├── components/
 │   ├── context/
@@ -121,47 +77,50 @@ projeto_pi/
 │   └── brightenergy.sql
 ├── App.js
 ├── app.json
+├── eas.json
 ├── index.js
 ├── package.json
+├── .env.example
 └── README.md
 ```
 
-## 10. Banco de dados
+## 7. Banco de dados
 
-O sistema utiliza MySQL.
+O projeto utiliza MySQL.
 
-O arquivo `database/brightenergy.sql` contém o script para criação do banco de dados e das tabelas.
+O script para criação do banco e das tabelas está em:
 
-As tabelas principais são:
+`database/brightenergy.sql`
 
-- usuarios: armazena os dados dos usuários e seus níveis de acesso.
-- empresas: armazena os dados das empresas e suas situações de aprovação.
-- mensagens: armazena as mensagens enviadas pelo formulário de contato.
+Tabelas principais:
 
-## 11. Autenticação e níveis de acesso
+- `usuarios`: dados dos usuários e níveis de acesso.
+- `empresas`: informações das empresas e situação de aprovação.
+- `mensagens`: mensagens enviadas pelo formulário de contato.
 
-O sistema possui dois níveis de acesso:
+## 8. Autenticação e níveis de acesso
 
-**Usuário comum**
+O sistema possui dois níveis de acesso.
+
+### Usuário comum
 - Realizar cadastro e login.
 - Consultar empresas aprovadas.
 - Solicitar cadastro de empresas.
-- Enviar mensagens.
+- Enviar mensagens pelo formulário de contato.
 
-**Administrador**
-- Visualizar todas as empresas.
+### Administrador
+- Visualizar empresas cadastradas.
 - Aprovar solicitações.
-- Editar empresas.
-- Excluir empresas.
+- Editar e excluir empresas.
 - Consultar e excluir mensagens.
 
-A autenticação utiliza JSON Web Token (JWT), e as senhas dos usuários são protegidas com bcryptjs.
+A autenticação utiliza JSON Web Token (JWT). As senhas dos usuários são protegidas com hash usando bcryptjs.
 
-## 12. Calculadora: metodologia e premissas
+## 9. Calculadora
 
-A calculadora apresenta estimativas simplificadas, não um orçamento técnico de instalação.
+A calculadora apresenta estimativas simplificadas de economia com energia solar.
 
-As fórmulas utilizadas são:
+Fórmulas utilizadas:
 
 **Economia mensal**
 
@@ -179,51 +138,44 @@ Economia mensal × 60 meses
 
 Economia mensal × 120 meses
 
-O percentual inicial de 80% é uma premissa editável para simulação, não uma garantia de economia nem um índice estatístico universal.
+Os resultados são estimativas e não substituem um orçamento técnico. A economia real depende do consumo, localização, dimensionamento, condições do imóvel e regras aplicáveis.
 
-A estimativa considera valores constantes durante o período. Não calcula inflação, reajustes tarifários, degradação dos módulos, custos de manutenção, taxas de disponibilidade ou variações de geração.
-
-Para um projeto real, devem ser considerados o consumo, a localização, a irradiação solar, o telhado, o dimensionamento do sistema e as regras aplicáveis à compensação de energia.
-
-### Fontes de consulta
-
-- EPE - Balanço Energético Nacional 2026: https://dashboard.epe.gov.br/apps/livro-ben/livro/pt/capitulo_1.html
-- ANEEL - Relatórios e indicadores de geração: https://www.gov.br/aneel/pt-br/centrais-de-conteudos/relatorios-e-indicadores/geracao
-- INPE - Atlas Brasileiro de Energia Solar: https://www.gov.br/pt-br/servicos/obter-dados-do-atlas-brasileiro-de-energia-solar-atlas-solar
-- EPE - Dashboard de Energia Solar: https://www.epe.gov.br/pt/publicacoes-dados-abertos/publicacoes/dashboard-de-energia-solar-geracao-centralizada-e-distribuida-no-brasil
-
-Como referência estatística nacional, o Balanço Energético Nacional 2026 informa que a geração de eletricidade por fonte solar atingiu 88,1 TWh em 2025, com crescimento de 24,7% em relação a 2024.
-
-Esse dado contextualiza a relevância da energia solar, mas não é utilizado como percentual de economia na calculadora.
-
-## 13. Instalação e execução
+## 10. Instalação e execução
 
 ### Pré-requisitos
 
 - Node.js e npm.
 - MySQL.
 - Visual Studio Code.
-- Expo.
-- Um emulador Android ou dispositivo com Expo Go.
+- Emulador Android ou celular com Expo Go.
 
-### 13.1. Instalar dependências do aplicativo
+### 10.1. Clonar o repositório
 
-Na pasta principal do projeto:
+```bash
+git clone https://github.com/pedrofa07/projeto_aplicativo.git
+cd projeto_aplicativo
+```
+
+Entre na pasta que contém o `package.json` do aplicativo, caso o repositório tenha uma pasta interna para o projeto.
+
+### 10.2. Instalar as dependências do aplicativo
+
+Na pasta principal do aplicativo:
 
 ```bash
 npm install
 ```
 
-### 13.2. Configurar o banco de dados
+### 10.3. Configurar o banco de dados
 
 1. Abra o MySQL Workbench.
-2. Abra o arquivo `database/brightenergy.sql`.
+2. Abra `database/brightenergy.sql`.
 3. Execute o script.
-4. Confira se o banco `brightenergy` e suas três tabelas foram criados.
+4. Confira se o banco `brightenergy` e as tabelas foram criados.
 
-### 13.3. Configurar a API
+### 10.4. Configurar a API
 
-Entre na pasta da API:
+Entre na pasta `api`:
 
 ```bash
 cd api
@@ -235,66 +187,98 @@ Instale as dependências:
 npm install
 ```
 
-Crie seu arquivo `.env` a partir do modelo:
+Crie o arquivo `.env` a partir do modelo:
 
 ```bash
 copy .env.example .env
 ```
 
-Edite o arquivo `api/.env` com os dados reais do MySQL e as configurações de autenticação.
+Configure os dados reais no arquivo `api/.env`:
 
-Inicie o servidor:
+- Porta do servidor.
+- Host do MySQL.
+- Usuário e senha do MySQL.
+- Nome do banco.
+- Chave secreta do JWT.
+- Login e senha do administrador.
+
+Inicie a API:
 
 ```bash
 npm run dev
 ```
 
-A API estará disponível na porta 3000, caso nenhuma outra porta seja configurada.
+O servidor utiliza a porta 3000 por padrão.
 
-### 13.4. Configurar o aplicativo
+### 10.5. Configurar o aplicativo
 
-Na raiz do projeto, crie um `.env` a partir do `.env.example` e configure a URL da API.
+Na raiz do aplicativo, crie o arquivo `.env` a partir do modelo:
 
-Para emulador Android, o endereço padrão é:
+```bash
+copy .env.example .env
+```
 
-```text
-http://10.0.2.2:3000/api
+Para emulador Android, utilize:
+
+```env
+EXPO_PUBLIC_API_URL=http://10.0.2.2:3000/api
 ```
 
 Para celular físico, utilize o endereço IPv4 do computador na mesma rede Wi-Fi.
 
-### 13.5. Executar o aplicativo
+### 10.6. Executar o aplicativo
 
-Em outro terminal, na pasta principal:
+Abra outro terminal na raiz do aplicativo:
 
 ```bash
 npx expo start
 ```
 
-Para abrir no Android:
+Para iniciar diretamente no Android:
 
 ```bash
 npx expo start --android
 ```
 
-## 14. Testes recomendados
+## 11. Testes realizados
 
-- Testar cadastro de usuário.
-- Testar login de usuário.
-- Testar login administrativo.
-- Testar acesso às rotas protegidas.
-- Testar cadastro de empresa com CNPJ válido e inválido.
-- Testar aprovação de empresas.
-- Testar edição e exclusão de empresas.
-- Testar envio e exclusão de mensagens.
-- Testar comunicação com MySQL.
-- Testar a aplicação em emulador e celular físico.
+Foram realizados testes manuais de funcionamento envolvendo:
 
-## 15. Versionamento
+- Login administrativo.
+- Restauração da sessão ao reabrir o aplicativo.
+- Encerramento da sessão ao sair da conta.
+
+Também devem ser conferidos os fluxos de cadastro de usuário, cadastro e aprovação de empresas, edição e exclusão, envio e exclusão de mensagens, calculadora e permissões de usuário comum.
+
+## 12. Geração do APK
+
+O projeto utiliza EAS Build para preparar a versão Android.
+
+Antes de gerar o APK:
+
+1. A API precisa estar hospedada em um servidor acessível pela internet.
+2. O endereço público da API deve ser configurado em `EXPO_PUBLIC_API_URL`.
+3. O projeto precisa estar configurado no EAS.
+
+Com o EAS CLI instalado e a conta autenticada:
+
+```bash
+eas build:configure
+```
+
+Para gerar um APK de teste:
+
+```bash
+eas build --platform android --profile preview
+```
+
+O APK poderá ser baixado pelo link apresentado ao final da compilação.
+
+## 13. Versionamento
 
 O projeto utiliza Git e GitHub para controle de versão.
 
 Repositório:
 
-https://github.com/pedrofa07/Aplicativo_pi
-```
+https://github.com/pedrofa07/projeto_aplicativo
+

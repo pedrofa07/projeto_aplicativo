@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 import {
@@ -8,17 +9,20 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 
-import { api, salvarToken } from '../services/api';
+import { useUsuario } from '../context/usuario';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
 
+  const { login } = useUsuario();
+
   async function entrar() {
-    if (!email || !senha) {
+    if (!email.trim() || !senha) {
       Alert.alert(
         'Atenção',
         'Informe seu e-mail/login e sua senha.'
@@ -29,22 +33,16 @@ export default function Login({ navigation }) {
     try {
       setCarregando(true);
 
-      const resposta = await api.post('/usuarios/login', {
-        email,
-        login: email,
-        senha,
-      });
+      const usuario = await login(email, senha);
 
-      await salvarToken(resposta.token);
-
-      if (resposta.usuario.nivel === 'admin') {
+      if (usuario.nivel === 'admin') {
         navigation.navigate('Admin');
         return;
       }
 
       Alert.alert(
-        'Login',
-        'Login realizado com sucesso!',
+        'Login realizado!',
+        'Bem-vindo ao BrightEnergy!',
         [
           {
             text: 'OK',
@@ -53,7 +51,10 @@ export default function Login({ navigation }) {
         ]
       );
     } catch (erro) {
-      Alert.alert('Erro no login', erro.message);
+      Alert.alert(
+        'Erro no login',
+        erro.message || 'Não foi possível realizar o login.'
+      );
     } finally {
       setCarregando(false);
     }
@@ -63,6 +64,7 @@ export default function Login({ navigation }) {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scrollConteudo}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={styles.header}>
         <Text style={styles.logo}>BrightEnergy</Text>
@@ -82,8 +84,10 @@ export default function Login({ navigation }) {
           placeholder="Digite seu e-mail ou login"
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
           value={email}
           onChangeText={setEmail}
+          editable={!carregando}
         />
 
         <Text style={styles.label}>Senha</Text>
@@ -94,21 +98,28 @@ export default function Login({ navigation }) {
           secureTextEntry
           value={senha}
           onChangeText={setSenha}
+          editable={!carregando}
         />
 
         <TouchableOpacity
-          style={styles.botao}
+          style={[
+            styles.botao,
+            carregando && styles.botaoDesativado,
+          ]}
           onPress={entrar}
           disabled={carregando}
         >
-          <Text style={styles.textoBotao}>
-            {carregando ? 'Entrando...' : 'Entrar'}
-          </Text>
+          {carregando ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.textoBotao}>Entrar</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.botaoSecundario}
           onPress={() => navigation.navigate('Cadastro')}
+          disabled={carregando}
         >
           <Text style={styles.textoSecundario}>
             Ainda não tem conta? Cadastre-se
@@ -133,37 +144,45 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F8F5',
   },
+
   scrollConteudo: {
     flexGrow: 1,
   },
+
   header: {
     backgroundColor: '#123D2B',
     padding: 25,
   },
+
   logo: {
     color: '#FFFFFF',
     fontSize: 22,
     fontWeight: 'bold',
   },
+
   conteudo: {
     padding: 25,
     paddingTop: 40,
   },
+
   titulo: {
     color: '#123D2B',
     fontSize: 30,
     fontWeight: 'bold',
   },
+
   descricao: {
     color: '#526358',
     marginTop: 10,
     marginBottom: 30,
   },
+
   label: {
     color: '#123D2B',
     fontWeight: 'bold',
     marginBottom: 8,
   },
+
   input: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -172,28 +191,38 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
   },
+
   botao: {
     backgroundColor: '#123D2B',
     padding: 16,
     borderRadius: 30,
     alignItems: 'center',
   },
+
+  botaoDesativado: {
+    opacity: 0.6,
+  },
+
   textoBotao: {
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
+
   botaoSecundario: {
     padding: 18,
     alignItems: 'center',
   },
+
   textoSecundario: {
     color: '#123D2B',
     fontWeight: 'bold',
   },
+
   botaoVoltar: {
     padding: 12,
     alignItems: 'center',
   },
+
   textoVoltar: {
     color: '#526358',
   },

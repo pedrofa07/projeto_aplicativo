@@ -13,17 +13,19 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import { api, salvarToken, removerToken } from '../services/api';
+import { api } from '../services/api';
+import { useUsuario } from '../context/usuario';
 import Cabecalho from '../components/cabecalho';
 
 export default function Admin({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [autenticado, setAutenticado] = useState(false);
+
+  const { usuario, login, logout } = useUsuario();
+  const autenticado = usuario?.nivel === 'admin';
 
   const [empresas, setEmpresas] = useState([]);
   const [mensagens, setMensagens] = useState([]);
-
   const [carregando, setCarregando] = useState(false);
 
   const [modalExcluir, setModalExcluir] = useState(false);
@@ -51,13 +53,10 @@ export default function Admin({ navigation }) {
     try {
       setCarregando(true);
 
-      const resposta = await api.post('/usuarios/login', {
-        email: email.trim(),
-        senha,
-      });
+      const usuarioLogado = await login(email.trim(), senha);
 
-      if (resposta.usuario.nivel !== 'admin') {
-        await removerToken();
+      if (usuarioLogado.nivel !== 'admin') {
+        await logout();
 
         Alert.alert(
           'Acesso negado',
@@ -67,11 +66,8 @@ export default function Admin({ navigation }) {
         return;
       }
 
-      await salvarToken(resposta.token);
-
-      setAutenticado(true);
-
-      await carregarDados();
+      setEmail('');
+      setSenha('');
     } catch (erro) {
       Alert.alert(
         'Erro ao entrar',
@@ -260,9 +256,8 @@ export default function Admin({ navigation }) {
   }
 
   async function sair() {
-    await removerToken();
+    await logout();
 
-    setAutenticado(false);
     setEmail('');
     setSenha('');
     setEmpresas([]);
